@@ -3,6 +3,13 @@
   
 */
 
+String urlToPath(const String &url) {
+  unsigned pathStart = url.indexOf("//");
+  pathStart = url.indexOf('/', pathStart + 2);
+
+  return url.substring(pathStart);
+}
+
 String httpRequest(WiFiClient& client, String httpMethod, String url, String host, String btnLabel, int btnFunction){
   
   String mac = WiFi.macAddress();
@@ -11,7 +18,7 @@ String httpRequest(WiFiClient& client, String httpMethod, String url, String hos
   String contentType;
   String responseString;
 
-  client.print(httpMethod + " " + url + " HTTP/1.0\r\n" +
+  client.print(httpMethod + " " + urlToPath(url) + " HTTP/1.0\r\n" +
                "Host: " + host + "\r\n" + 
                "X-CODECARD-ID: " + mac + "\r\n" +
                "X-CODECARD-BUTTON-LABEL: " + btnLabel + "\r\n" + 
@@ -185,7 +192,7 @@ void httpsImage(String host, int port, String url, int16_t x, int16_t y, String 
     return;
   }
   
-  secureClient.print(String("GET ") + url + " HTTP/1.1\r\n" +
+  secureClient.print(String("GET ") + urlToPath(url) + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
                "User-Agent: CodeCard\r\n" +
                "Connection: close\r\n\r\n");
@@ -237,7 +244,7 @@ void httpImage(String host, int port, String url, int16_t x, int16_t y, bool wit
     return;
   }
 
-  client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+  client.print(String("GET ") + urlToPath(url) + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
                "User-Agent: CodeCard\r\n" +
                "Connection: close\r\n\r\n");
