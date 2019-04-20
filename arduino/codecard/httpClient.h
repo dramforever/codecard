@@ -57,11 +57,7 @@ String httpRequest(WiFiClient& client, String httpMethod, String url, String hos
   } 
 
 
-  char endOfHeaders[] = "\r\n\r\n";
-  if (!client.find(endOfHeaders)) {
-    Serial.println(F("  Invalid response"));
-    return "";
-  } 
+  while(client.readStringUntil('\n') != "\r");
 
 
   if (contentType.indexOf("json") > -1) {
