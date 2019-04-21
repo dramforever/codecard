@@ -6,17 +6,11 @@
 void parseJson(String jsonString) {  
   
   const size_t capacity = jsonString.length();
-  DynamicJsonBuffer jsonBuffer(capacity);
+  DynamicJsonDocument root(capacity + JSON_OBJECT_SIZE(32));
   //StaticJsonBuffer<400> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(jsonString);
+  DeserializationError error = deserializeJson(root, jsonString);
 
-  String jsonStr;
-  root.printTo(jsonStr);
-  Serial.println(F("Response: "));
-  Serial.println("  " + jsonStr);
-  Serial.println(F(">>>"));
-
-  if (!root.success()) {
+  if (error) {
     Serial.println(F("JSON parsing failed!"));
     Serial.println(F(">>>"));
     template1("Invalid response", "Please verify JSON",  jsonString ,"fail","","", "");
@@ -24,19 +18,26 @@ void parseJson(String jsonString) {
     return;
   }
 
+  String jsonStr;
+  serializeJson(root, jsonStr);
+  Serial.println(F("Response: "));
+  Serial.println("  " + jsonStr);
+  Serial.println(F(">>>"));
+
   //saveToMemory(getKeyIndex("lastpayload"), jsonStr);
-  
+
+  // as<const char*>() then converting to String turns missing values into empty string
+  // as<String>() turns them to the string "null"
   String templateName = root["template"].as<String>();
   String title = root["title"].as<String>();
   String subtitle = root["subtitle"].as<String>();
   String body = root["bodytext"].as<String>();
-  String icon = root["icon"].as<String>();
-  String backgroundImage = root["backgroundImage"].as<String>();
+  String icon = root["icon"].as<const char*>();
+  String backgroundImage = root["backgroundImage"].as<const char*>();
   String backgroundColor = root["backgroundColor"].as<String>();
-  String badge = root["badge"].as<String>();
+  String badge = root["badge"].as<const char*>();
   String fingerprint = root["fingerprint"].as<String>();
   String barcode = root["barcode"].as<String>();
-
 
   if (templateName == "custom"){
     String titleFont = root["titleFont"].as<String>();
@@ -54,7 +55,7 @@ void parseJson(String jsonString) {
   }
   
 
-  jsonBuffer.clear();
+  root.clear();
     
   // Serial.println("Free HEAP: " + String(ESP.getFreeHeap()));
   
@@ -87,12 +88,6 @@ void parseJson(String jsonString) {
     saveToMemory(getKeyIndex("showdefaultscreen"), "true");
   }
   
-}
-
-void parseJsonObject(JsonObject& root) {
-  String jsonStr;
-  root.printTo(jsonStr);
-  parseJson(jsonStr);
 }
 
 
