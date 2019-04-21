@@ -102,6 +102,8 @@ String secureRequest(String host, int port, String url, String btnLabel, int btn
     return "";
   }
 
+  client.setFingerprint(fingerprint.c_str());
+
   client.setTimeout(10000);
   if (!client.connect(host, port)) {
     Serial.println(F("  Connection failed"));
@@ -149,15 +151,15 @@ String request(String host, int port, String url, String btnLabel, int btnFuncti
 
 void httpsImage(String host, int port, String url, int16_t x, int16_t y, String fingerprint, bool with_color) {
 
-  // WiFiClientSecure secureClient;
+  WiFiClientSecure secureClient;
   // BearSSL::WiFiClientSecure secureClient;
-  axTLS::WiFiClientSecure secureClient;
+  // axTLS::WiFiClientSecure secureClient;
   
   bool connection_ok = false;
   uint32_t startTime = millis();
   
   if ((x >= display.width()) || (y >= display.height())) return;
-  
+
   Serial.println(F("Request:"));
   Serial.print(F("  host: "));
   Serial.println(host);
@@ -176,6 +178,7 @@ void httpsImage(String host, int port, String url, int16_t x, int16_t y, String 
   //secureClient.setFingerprint(fp);
   
   secureClient.setTimeout(10000);
+  secureClient.setFingerprint(fingerprint.c_str());
   if (!secureClient.connect(host, port)) {
     Serial.println("  SSL connection failed");
     Serial.println(">>>");
